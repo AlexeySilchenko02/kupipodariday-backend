@@ -1,27 +1,41 @@
 import { Injectable } from '@nestjs/common';
-import { User } from 'src/users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
+
 import { UsersService } from 'src/users/users.service';
 import { HashService } from 'src/utils/hash.service';
+import { User } from 'src/users/entities/user.entity';
+
 @Injectable()
 export class AuthService {
   constructor(
-    private jwtService: JwtService,
-    private userService: UsersService,
-    private hashService: HashService,
+    private readonly jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly hashService: HashService,
   ) {}
 
+  /** Формируем JWT по id пользователя */
   auth(user: User) {
     const payload = { sub: user.id };
-
     return { access_token: this.jwtService.sign(payload, { expiresIn: '7d' }) };
   }
-  async validatePassword(username: string, password: string) {
-    const user = await this.userService.getUserByUsername(username, true);
 
-    if (user && (await this.hashService.compare(password, user.password))) {
-      return this.userService.getUserByUsername(username);
-    }
-    return null;
+  /** Проверяем логин и пароль.
+   *  Возвращаем пользователя БЕЗ поля password или null. */
+  async validatePassword(username: string, password: string) {
+    // берём с хэшем
+    const userWithHash = await this.usersService.getUserByUsername(
+      username,
+      true,
+    );
+    if (!userWithHash) return null;
+
+    const isMatch = await this.hashService.compare(
+      password,
+      userWithHash.password,
+    );
+    if (!isMatch) return null;
+
+    // «чистую» копию без пароля
+    return this.usersService.getUserByUsername(username);
   }
 }
