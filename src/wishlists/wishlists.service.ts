@@ -83,7 +83,6 @@ export class WishlistsService {
       where: { id },
       relations: ['owner', 'items'],
     });
-    console.log(wishList.owner.id);
     if (!wishList)
       throw new BadRequestException('такой коллекции не существует');
     if (wishList.owner.id !== userId) {
