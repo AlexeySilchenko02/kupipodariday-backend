@@ -17,10 +17,10 @@ export class AuthService {
     return { access_token: this.jwtService.sign(payload, { expiresIn: '7d' }) };
   }
   async validatePassword(username: string, password: string) {
-    const user = await this.userService.getUserByUsername(username);
+    const user = await this.userService.getUserByUsername(username, true);
 
-    if (user && this.hashService.compare(password, user)) {
-      return user;
+    if (user && (await this.hashService.compare(password, user.password))) {
+      return this.userService.getUserByUsername(username);
     }
     return null;
   }

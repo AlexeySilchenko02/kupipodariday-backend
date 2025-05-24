@@ -45,11 +45,19 @@ export class UsersService {
     return plainToInstance(User, user);
   }
 
-  async getUserByUsername(username: string): Promise<User> {
+  async getUserByUsername(
+    username: string,
+    withPassword = false,
+  ): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { username },
     });
-    return plainToInstance(User, user);
+
+    if (!withPassword) {
+      return plainToInstance(User, user);
+    }
+
+    return user;
   }
 
   async findMany(str: string): Promise<User[]> {

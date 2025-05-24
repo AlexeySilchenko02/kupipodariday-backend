@@ -4,11 +4,10 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class HashService {
   getHash(password: string): Promise<string> {
-    const hash = bcrypt.hash(password, 10);
-    return hash;
+    return bcrypt.hash(password, 10);
   }
 
-  compare(password: string, user: any): Promise<boolean> {
-    return bcrypt.compare(password, user.password);
+  compare(password: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(password, hash);
   }
 }
