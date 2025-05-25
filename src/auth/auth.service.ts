@@ -13,16 +13,12 @@ export class AuthService {
     private readonly hashService: HashService,
   ) {}
 
-  /** Формируем JWT по id пользователя */
   auth(user: User) {
     const payload = { sub: user.id };
     return { access_token: this.jwtService.sign(payload, { expiresIn: '7d' }) };
   }
 
-  /** Проверяем логин и пароль.
-   *  Возвращаем пользователя БЕЗ поля password или null. */
   async validatePassword(username: string, password: string) {
-    // берём с хэшем
     const userWithHash = await this.usersService.getUserByUsername(
       username,
       true,
@@ -35,7 +31,6 @@ export class AuthService {
     );
     if (!isMatch) return null;
 
-    // «чистую» копию без пароля
     return this.usersService.getUserByUsername(username);
   }
 }
